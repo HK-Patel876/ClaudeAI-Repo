@@ -4,10 +4,14 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from loguru import logger
 
+# Get DATABASE_URL from environment, fallback to SQLite for development
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is not set")
+    # Default to SQLite for development
+    DATABASE_URL = "sqlite:///./trading.db"
+    logger.warning("DATABASE_URL not set, using SQLite default: ./trading.db")
+    logger.warning("For production, set DATABASE_URL environment variable")
 
 engine = create_engine(DATABASE_URL, pool_pre_ping=True, echo=False)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

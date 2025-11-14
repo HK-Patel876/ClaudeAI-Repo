@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     
     # Server
     HOST: str = "0.0.0.0"
-    PORT: int = 5000
+    PORT: int = 8000  # Backend runs on port 8000, frontend on port 3000
     
     # Database
     DATABASE_URL: Optional[str] = None
