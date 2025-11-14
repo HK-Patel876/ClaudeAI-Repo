@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TradingView Chart</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #0f1419;
+    }
+    #tradingview_widget {
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <div id="tradingview_widget"></div>
+
+  <script src="https://s3.tradingview.com/tv.js"></script>
+  <script>
+    let tvWidget = null;
+    let currentSymbol = 'NASDAQ:AAPL';
+    let currentInterval = 'D';
+
+    const commonStocks = {
+      'AAPL': 'NASDAQ:AAPL',
+      'GOOGL': 'NASDAQ:GOOGL',
+      'MSFT': 'NASDAQ:MSFT',
+      'AMZN': 'NASDAQ:AMZN',
+      'TSLA': 'NASDAQ:TSLA',
+      'META': 'NASDAQ:META',
+      'NVDA': 'NASDAQ:NVDA',
+      'AMD': 'NASDAQ:AMD',
+      'NFLX': 'NASDAQ:NFLX',
+      'INTC': 'NASDAQ:INTC',
+      'SPY': 'AMEX:SPY',
+      'QQQ': 'NASDAQ:QQQ',
+      'MSTR': 'NASDAQ:MSTR',
+      'PLTR': 'NYSE:PLTR'
+    };
+
+    function getTradingViewSymbol(sym) {
+      return commonStocks[sym] || `NASDAQ:${sym}`;
+    }
+
+    function initWidget(symbol, interval) {
+      if (tvWidget) {
+        try {
+          tvWidget.remove();
+        } catch (e) {
+          console.log('Widget removal error:', e);
+        }
+      }
+
+      tvWidget = new TradingView.widget({
+        width: '100%',
+        height: '100%',
+        symbol: symbol,
+        interval: interval,
+        timezone: 'Etc/UTC',
+        theme: 'dark',
+        style: '1',
+        locale: 'en',
+        toolbar_bg: '#0f1419',
+        enable_publishing: false,
+        allow_symbol_change: true,
+        container_id: 'tradingview_widget',
+        overrides: {
+          'mainSeriesProperties.candleStyle.upColor': '#10b981',
+          'mainSeriesProperties.candleStyle.downColor': '#ef4444',
+          'mainSeriesProperties.candleStyle.borderUpColor': '#10b981',
+          'mainSeriesProperties.candleStyle.borderDownColor': '#ef4444',
+          'mainSeriesProperties.candleStyle.wickUpColor': '#10b981',
+          'mainSeriesProperties.candleStyle.wickDownColor': '#ef4444',
+          'paneProperties.background': '#0f1419',
+          'paneProperties.vertGridProperties.color': '#1e2329',
+          'paneProperties.horzGridProperties.color': '#1e2329',
+          'scalesProperties.textColor': '#d1d4dc'
+        }
+      });
+
+      currentSymbol = symbol;
+      currentInterval = interval;
+
+      console.log('TradingView widget initialized:', symbol, interval);
+    }
+
+    window.addEventListener('message', function(event) {
+      if (event.data && event.data.type === 'UPDATE_CHART') {
+        const { symbol, interval } = event.data;
+        
+        if (symbol && symbol !== currentSymbol) {
+          const tvSymbol = getTradingViewSymbol(symbol);
+          console.log('Updating symbol to:', tvSymbol);
+          
+          if (tvWidget && tvWidget.chart) {
+            try {
+              tvWidget.chart().setSymbol(tvSymbol, function() {
+                console.log('Symbol changed to:', tvSymbol);
+              });
+              currentSymbol = tvSymbol;
+            } catch (e) {
+              console.log('Error changing symbol, reinitializing...', e);
+              initWidget(tvSymbol, currentInterval);
+            }
+          } else {
+            initWidget(tvSymbol, currentInterval);
+          }
+        }
+        
+        if (interval && interval !== currentInterval) {
+          console.log('Updating interval to:', interval);
+          
+          if (tvWidget && tvWidget.chart) {
+            try {
+              tvWidget.chart().setResolution(interval, function() {
+                console.log('Interval changed to:', interval);
+              });
+              currentInterval = interval;
+            } catch (e) {
+              console.log('Error changing interval, reinitializing...', e);
+              initWidget(currentSymbol, interval);
+            }
+          } else {
+            initWidget(currentSymbol, interval);
+          }
+        }
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+      initWidget(currentSymbol, currentInterval);
+    });
+  </script>
+</body>
+</html>

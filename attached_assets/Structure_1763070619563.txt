@@ -1,0 +1,137 @@
+ai-trading-system/
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   ├── api/
+│   │   │   ├── __init__.py
+│   │   │   ├── endpoints/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── data.py
+│   │   │   │   ├── trading.py
+│   │   │   │   └── system.py
+│   │   │   └── dependencies.py
+│   │   ├── core/
+│   │   │   ├── __init__.py
+│   │   │   ├── config.py
+│   │   │   ├── security.py
+│   │   │   └── events.py
+│   │   ├── models/
+│   │   │   ├── __init__.py
+│   │   │   ├── trading_models.py
+│   │   │   └── data_models.py
+│   │   ├── services/
+│   │   │   ├── __init__.py
+│   │   │   ├── data_service.py
+│   │   │   ├── trading_service.py
+│   │   │   ├── ai_service.py
+│   │   │   └── risk_service.py
+│   │   ├── db/
+│   │   │   ├── __init__.py
+│   │   │   ├── database.py
+│   │   │   └── repos/
+│   │   │       ├── __init__.py
+│   │   │       ├── data_repo.py
+│   │   │       └── trading_repo.py
+│   │   └── utils/
+│   │       ├── __init__.py
+│   │       ├── indicators.py
+│   │       ├── data_processing.py
+│   │       └── logging.py
+│   ├── tests/
+│   │   ├── __init__.py
+│   │   ├── test_data_service.py
+│   │   ├── test_trading_service.py
+│   │   └── test_ai_service.py
+│   ├── requirements.txt
+│   ├── Dockerfile
+│   └── alembic/
+│       ├── env.py
+│       ├── README
+│       ├── script.py.mako
+│       └── versions/
+├── frontend/
+│   ├── public/
+│   │   ├── index.html
+│   │   └── favicon.ico
+│   ├── src/
+│   │   ├── index.js
+│   │   ├── App.js
+│   │   ├── components/
+│   │   │   ├── Dashboard.js
+│   │   │   ├── Charts.js
+│   │   │   ├── Positions.js
+│   │   │   ├── Orders.js
+│   │   │   └── Logs.js
+│   │   ├── services/
+│   │   │   ├── api.js
+│   │   │   └── websocket.js
+│   │   ├── styles/
+│   │   │   ├── index.css
+│   │   │   └── App.css
+│   │   └── utils/
+│   │       ├── constants.js
+│   │       └── helpers.js
+│   ├── package.json
+│   ├── package-lock.json
+│   └── Dockerfile
+├── data_pipeline/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── connectors/
+│   │   ├── __init__.py
+│   │   ├── alpaca_connector.py
+│   │   ├── binance_connector.py
+│   │   └── interactive_brokers_connector.py
+│   ├── processors/
+│   │   ├── __init__.py
+│   │   ├── data_processor.py
+│   │   └── feature_engineer.py
+│   └── storage/
+│       ├── __init__.py
+│       ├── timescale_db.py
+│       └── redis_db.py
+├── ai_engine/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── models/
+│   │   ├── __init__.py
+│   │   ├── lstm_model.py
+│   │   ├── transformer_model.py
+│   │   └── reinforcement_learning.py
+│   ├── training/
+│   │   ├── __init__.py
+│   │   ├── train_lstm.py
+│   │   └── train_rl.py
+│   └── inference/
+│       ├── __init__.py
+│       ├── predictor.py
+│       └── strategy_executor.py
+├── monitoring/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── alerts/
+│   │   ├── __init__.py
+│   │   └── telegram_alert.py
+│   └── metrics/
+│       ├── __init__.py
+│       ├── performance_metrics.py
+│       └── risk_metrics.py
+├── config/
+│   ├── __init__.py
+│   ├── development.yaml
+│   ├── production.yaml
+│   └── testing.yaml
+├── scripts/
+│   ├── setup_environment.sh
+│   ├── deploy.sh
+│   └── backup_database.sh
+├── docs/
+│   ├── api.md
+│   ├── architecture.md
+│   └── setup_guide.md
+├── docker-compose.yml
+├── .env.example
+├── .gitignore
+├── README.md
+└── requirements.txt

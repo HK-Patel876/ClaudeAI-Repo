@@ -1,31 +1,56 @@
-# Extracted project directory
-Excellent-Project-Pycharm/
-
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-venv/
-env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
 *.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
 
-# Node
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Virtual environments
+venv/
+ENV/
+env/
 
-# IDE
+# Flask
+instance/
+.webassets-cache
+
+# IDEs
 .vscode/
 .idea/
 *.swp
 *.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Environment
+# Extracted project files (source is now in root)
+Excellent-Project-Pycharm/
+Excellent-Project-Pycharm.zip
+
+# Environment files
 .env
+
+# Replit state files
+.local/
+
+# Logs
+*.log
+logs/

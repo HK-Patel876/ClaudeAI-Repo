@@ -1,0 +1,26 @@
+.chart-workspace-container {
+  min-height: 600px;
+  max-height: 800px;
+}
+
+.side-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.side-panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg, 24px);
+}
+
+.side-panel-content > * {
+  flex-shrink: 0;
+}
+
+@media (max-width: 1200px) {
+  .chart-workspace-container {
+    min-height: 500px;
+    max-height: 600px;
+  }
+}
