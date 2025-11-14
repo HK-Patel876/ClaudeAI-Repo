@@ -21,12 +21,22 @@ app = FastAPI(
     description="Autonomous AI Trading System with Multi-Agent Architecture"
 )
 
-# CORS middleware
+# CORS middleware - restrict origins in production
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+# In debug mode, allow all origins for development
+if settings.DEBUG:
+    origins.append("*")
+    logger.warning("DEBUG mode: CORS allows all origins")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
 
@@ -67,11 +77,21 @@ class ConnectionManager:
     
     async def broadcast(self, message: dict):
         """Broadcast message to all connected clients"""
+        dead_connections = []
         for connection in self.active_connections:
             try:
                 await connection.send_json(message)
             except Exception as e:
                 logger.error(f"Error broadcasting to WebSocket: {e}")
+                dead_connections.append(connection)
+
+        # Remove dead connections
+        for connection in dead_connections:
+            try:
+                self.active_connections.remove(connection)
+                logger.info(f"Removed dead connection. Active: {len(self.active_connections)}")
+            except ValueError:
+                pass  # Already removed
 
 
 manager = ConnectionManager()

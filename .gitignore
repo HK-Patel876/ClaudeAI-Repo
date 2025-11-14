@@ -54,3 +54,12 @@ Excellent-Project-Pycharm.zip
 # Logs
 *.log
 logs/
+
+# Node
+node_modules/
+package-lock.json
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
