@@ -33,49 +33,6 @@ async def get_live_signals():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@router.get("/signals/{symbol}")
-async def get_signal_for_symbol(symbol: str):
-    """
-    Get live AI signal for a specific symbol
-    Includes ML predictions, neural network analysis, and trade plan
-    """
-    try:
-        # Get fresh data
-        market_data = await data_service.get_historical_data(
-            symbol=symbol,
-            timeframe="1m",
-            limit=200
-        )
-
-        if not market_data or len(market_data) < 50:
-            raise HTTPException(
-                status_code=404,
-                detail=f"Insufficient data for {symbol}"
-            )
-
-        # Convert to DataFrame
-        df = pd.DataFrame(market_data)
-        current_price = df['close'].iloc[-1]
-
-        # Get AI analysis
-        signal = await ai_core.analyze_symbol(
-            symbol=symbol,
-            df=df,
-            current_price=current_price
-        )
-
-        return {
-            "success": True,
-            "signal": signal.to_dict()
-        }
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error analyzing {symbol}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
 @router.get("/signals/top-opportunities")
 async def get_top_opportunities(
     limit: int = Query(default=10, le=50),
@@ -112,61 +69,6 @@ async def get_top_opportunities(
 
     except Exception as e:
         logger.error(f"Error getting top opportunities: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.post("/signals/analyze-batch")
-async def analyze_batch(symbols: List[str]):
-    """
-    Analyze multiple symbols in parallel
-    Returns AI signals for all requested symbols
-    """
-    try:
-        import asyncio
-
-        async def analyze_one(symbol: str):
-            try:
-                # Get data
-                market_data = await data_service.get_historical_data(
-                    symbol=symbol,
-                    timeframe="1m",
-                    limit=200
-                )
-
-                if not market_data or len(market_data) < 50:
-                    return None
-
-                df = pd.DataFrame(market_data)
-                current_price = df['close'].iloc[-1]
-
-                # Analyze
-                signal = await ai_core.analyze_symbol(
-                    symbol=symbol,
-                    df=df,
-                    current_price=current_price
-                )
-
-                return signal.to_dict()
-            except Exception as e:
-                logger.error(f"Error analyzing {symbol}: {e}")
-                return None
-
-        # Analyze all in parallel
-        results = await asyncio.gather(*[analyze_one(s) for s in symbols])
-
-        # Filter out None results
-        signals = [r for r in results if r is not None]
-
-        return {
-            "success": True,
-            "requested": len(symbols),
-            "analyzed": len(signals),
-            "signals": signals,
-            "timestamp": datetime.now().isoformat()
-        }
-
-    except Exception as e:
-        logger.error(f"Error in batch analysis: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -271,3 +173,99 @@ async def get_supported_assets():
             }
         }
     }
+
+
+@router.get("/signals/{symbol}")
+async def get_signal_for_symbol(symbol: str):
+    """
+    Get live AI signal for a specific symbol
+    Includes ML predictions, neural network analysis, and trade plan
+    """
+    try:
+        # Get fresh data
+        market_data = await data_service.get_market_data(
+            symbol=symbol,
+            timeframe="1m"
+        )
+
+        if not market_data or len(market_data) < 50:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Insufficient data for {symbol}"
+            )
+
+        # Convert to DataFrame
+        df = pd.DataFrame(market_data)
+        current_price = df['close'].iloc[-1]
+
+        # Get AI analysis
+        signal = await ai_core.analyze_symbol(
+            symbol=symbol,
+            df=df,
+            current_price=current_price
+        )
+
+        return {
+            "success": True,
+            "signal": signal.to_dict()
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error analyzing {symbol}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/signals/analyze-batch")
+async def analyze_batch(symbols: List[str]):
+    """
+    Analyze multiple symbols in parallel
+    Returns AI signals for all requested symbols
+    """
+    try:
+        import asyncio
+
+        async def analyze_one(symbol: str):
+            try:
+                # Get data
+                market_data = await data_service.get_market_data(
+                    symbol=symbol,
+                    timeframe="1m"
+                )
+
+                if not market_data or len(market_data) < 50:
+                    return None
+
+                df = pd.DataFrame(market_data)
+                current_price = df['close'].iloc[-1]
+
+                # Analyze
+                signal = await ai_core.analyze_symbol(
+                    symbol=symbol,
+                    df=df,
+                    current_price=current_price
+                )
+
+                return signal.to_dict()
+            except Exception as e:
+                logger.error(f"Error analyzing {symbol}: {e}")
+                return None
+
+        # Analyze all in parallel
+        results = await asyncio.gather(*[analyze_one(s) for s in symbols])
+
+        # Filter out None results
+        signals = [r for r in results if r is not None]
+
+        return {
+            "success": True,
+            "requested": len(symbols),
+            "analyzed": len(signals),
+            "signals": signals,
+            "timestamp": datetime.now().isoformat()
+        }
+
+    except Exception as e:
+        logger.error(f"Error in batch analysis: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
