@@ -22,16 +22,16 @@ def setup_logging():
 async def startup_event(app: FastAPI):
     """Startup event handler"""
     setup_logging()
-    logger.info("🚀 AI Trading System Starting Up...")
+    logger.info("AI Trading System Starting Up...")
     logger.info("Initializing database connections...")
     logger.info("Setting up WebSocket connections...")
     logger.info("Starting data ingestion pipelines...")
-    logger.info("✅ System Ready!")
+    logger.info("System Ready!")
 
 
 async def shutdown_event(app: FastAPI):
     """Shutdown event handler"""
-    logger.info("🛑 AI Trading System Shutting Down...")
+    logger.info("AI Trading System Shutting Down...")
     logger.info("Closing open positions...")
     logger.info("Saving state...")
-    logger.info("✅ Shutdown Complete!")
+    logger.info("Shutdown Complete!")
