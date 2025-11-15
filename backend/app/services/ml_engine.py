@@ -17,8 +17,7 @@ from .indicators_library import (
     VolumeIndicators,
     MomentumIndicators,
     TrendIndicators,
-    VolatilityIndicators,
-    OscillatorIndicators
+    VolatilityIndicators
 )
 
 # ML Libraries (will be installed)
@@ -264,26 +263,6 @@ class MLTradingEngine:
         except Exception as e:
             logger.warning(f"Error calculating volatility indicators: {e}")
 
-        # ===== OSCILLATOR INDICATORS (15+ from library) =====
-        try:
-            features['awesome_osc'] = OscillatorIndicators.awesome_oscillator(high, low)
-            features['ao_signal'] = OscillatorIndicators.awesome_oscillator_signal(high, low)
-
-            # Detrended Price Oscillator
-            features['dpo'] = OscillatorIndicators.dpo(close, period=20)
-
-            # Fisher Transform
-            fisher, fisher_signal = OscillatorIndicators.fisher_transform(high, low, period=10)
-            features['fisher'] = fisher
-            features['fisher_signal'] = fisher_signal
-
-            features['chande_mo'] = OscillatorIndicators.chande_momentum_oscillator(close, period=14)
-            features['ppo'] = OscillatorIndicators.ppo(close, fast=12, slow=26, signal=9)
-            features['pvo'] = OscillatorIndicators.pvo(volume, fast=12, slow=26, signal=9)
-            features['rvi'] = OscillatorIndicators.rvi(open_price, high, low, close, period=10)
-
-        except Exception as e:
-            logger.warning(f"Error calculating oscillator indicators: {e}")
 
         # ===== PRICE PATTERN FEATURES =====
         features['higher_high'] = (high > high.shift(1)).astype(int)
@@ -488,16 +467,6 @@ class MLTradingEngine:
                 score -= 0.15  # Near upper band
                 count += 1
 
-        # Fisher Transform
-        if 'fisher' in df.columns and 'fisher_signal' in df.columns:
-            fisher = latest['fisher']
-            fisher_signal = latest['fisher_signal']
-            if fisher > fisher_signal and fisher < -1:
-                score += 0.25  # Bullish crossover in oversold
-                count += 1
-            elif fisher < fisher_signal and fisher > 1:
-                score -= 0.25  # Bearish crossover in overbought
-                count += 1
 
         # Ultimate Oscillator
         if 'ultimate_osc' in df.columns:
