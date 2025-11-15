@@ -63,3 +63,11 @@ package-lock.json
 *.db
 *.sqlite
 *.sqlite3
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+*.cover
+.hypothesis/
+coverage.xml
