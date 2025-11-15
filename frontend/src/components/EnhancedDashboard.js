@@ -15,6 +15,9 @@ import BacktestingPanel from './BacktestingPanel';
 import PortfolioChart from './PortfolioChart';
 import MainChart from './MainChart/MainChart';
 import TradingPanel from './TradingPanel';
+import WatchlistManager from './WatchlistManager';
+import AutoTradingSettings from './AutoTradingSettings';
+import OptionsAnalytics from './OptionsAnalytics';
 import aiSignalsService from '../services/aiSignals';
 import { tradingAPI, systemAPI } from '../services/api';
 import soundService from '../services/soundService';
@@ -341,6 +344,30 @@ const EnhancedDashboard = () => {
           <Clock size={18} />
           <span>Backtesting</span>
         </button>
+
+        <button
+          className={`tab-btn ${activeView === 'watchlist' ? 'active' : ''} hover-lift`}
+          onClick={() => handleViewChange('watchlist')}
+        >
+          <Target size={18} />
+          <span>Watchlist</span>
+        </button>
+
+        <button
+          className={`tab-btn ${activeView === 'autotrading' ? 'active' : ''} hover-lift`}
+          onClick={() => handleViewChange('autotrading')}
+        >
+          <Zap size={18} />
+          <span>Auto-Trading</span>
+        </button>
+
+        <button
+          className={`tab-btn ${activeView === 'options' ? 'active' : ''} hover-lift`}
+          onClick={() => handleViewChange('options')}
+        >
+          <DollarSign size={18} />
+          <span>Options</span>
+        </button>
       </div>
 
       {/* Main Content Area */}
@@ -437,6 +464,24 @@ const EnhancedDashboard = () => {
         {activeView === 'backtest' && (
           <div className="content-view animate-fade-in">
             <BacktestingPanel />
+          </div>
+        )}
+
+        {activeView === 'watchlist' && (
+          <div className="content-view animate-fade-in">
+            <WatchlistManager onSymbolSelect={handleSymbolClick} />
+          </div>
+        )}
+
+        {activeView === 'autotrading' && (
+          <div className="content-view animate-fade-in">
+            <AutoTradingSettings onSettingsChange={loadDashboardData} />
+          </div>
+        )}
+
+        {activeView === 'options' && (
+          <div className="content-view animate-fade-in">
+            <OptionsAnalytics defaultSymbol={selectedSymbol} />
           </div>
         )}
       </div>
