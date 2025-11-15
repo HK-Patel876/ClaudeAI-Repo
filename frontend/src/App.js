@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './styles/App.css';
 import Dashboard from './components/Dashboard';
+import ErrorBoundary from './components/ErrorBoundary';
 import wsService from './services/websocket';
 
 function App() {
@@ -8,7 +9,7 @@ function App() {
 
   useEffect(() => {
     wsService.connect();
-    
+
     const unsubscribe = wsService.subscribe('pong', () => {
       setConnected(true);
     });
@@ -20,9 +21,11 @@ function App() {
   }, []);
 
   return (
-    <div className="app">
-      <Dashboard connected={connected} />
-    </div>
+    <ErrorBoundary>
+      <div className="app">
+        <Dashboard connected={connected} />
+      </div>
+    </ErrorBoundary>
   );
 }
 
