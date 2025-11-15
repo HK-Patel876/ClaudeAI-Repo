@@ -9,9 +9,11 @@ from datetime import datetime, timedelta
 
 from .core.config import settings
 from .core.events import startup_event, shutdown_event
-from .api.endpoints import trading, data, system, settings as settings_api, watchlist, analyses
+from .api.endpoints import trading, data, system, settings as settings_api, watchlist, analyses, ai_signals, backtesting
+from .api.endpoints.signals_stream import websocket_signals_stream
 from .services.data_service import data_service
 from .services.ai_scheduler import ai_scheduler
+from .services.ai_engine_core import ai_core
 from .database import init_db
 from .models import database_models
 
@@ -47,6 +49,8 @@ app.include_router(system.router, prefix=settings.API_PREFIX)
 app.include_router(settings_api.router, prefix=settings.API_PREFIX)
 app.include_router(watchlist.router, prefix=settings.API_PREFIX)
 app.include_router(analyses.router, prefix=settings.API_PREFIX)
+app.include_router(ai_signals.router, prefix=settings.API_PREFIX, tags=["AI Signals"])
+app.include_router(backtesting.router, prefix=settings.API_PREFIX, tags=["Backtesting"])
 
 # Startup and shutdown events
 @app.on_event("startup")
@@ -201,7 +205,7 @@ async def market_stream_endpoint(websocket: WebSocket, symbol: str, timeframe: s
     """WebSocket endpoint for streaming incremental market data with timeframe support"""
     await websocket.accept()
     logger.info(f"Market stream connected for {symbol} on {timeframe}")
-    
+
     timeframe_seconds = {
         '1s': 1,
         '5s': 5,
@@ -213,17 +217,17 @@ async def market_stream_endpoint(websocket: WebSocket, symbol: str, timeframe: s
         '1D': 86400,
         '1W': 604800
     }
-    
+
     interval = timeframe_seconds.get(timeframe, 1)
-    
+
     current_candle = None
     candle_start_time = None
-    
+
     try:
         while True:
             current_price = await data_service.get_current_price(symbol)
             current_time = datetime.utcnow()
-            
+
             if timeframe.endswith('s'):
                 timestamp_seconds = int(current_time.timestamp())
                 candle_start_seconds = (timestamp_seconds // interval) * interval
@@ -242,7 +246,7 @@ async def market_stream_endpoint(websocket: WebSocket, symbol: str, timeframe: s
                 candle_start = (current_time - timedelta(days=days_since_monday)).replace(hour=0, minute=0, second=0, microsecond=0)
             else:
                 candle_start = current_time
-            
+
             if current_candle is None or candle_start_time is None or candle_start > candle_start_time:
                 current_candle = {
                     'timestamp': candle_start.isoformat(),
@@ -258,20 +262,38 @@ async def market_stream_endpoint(websocket: WebSocket, symbol: str, timeframe: s
                 current_candle['low'] = min(current_candle['low'], current_price)
                 current_candle['close'] = current_price
                 current_candle['volume'] += random.uniform(10000, 100000)
-            
+
             await websocket.send_json({
                 'type': 'candle_update',
                 'symbol': symbol,
                 'timeframe': timeframe,
                 'candle': current_candle
             })
-            
+
             await asyncio.sleep(1)
-            
+
     except WebSocketDisconnect:
         logger.info(f"Market stream disconnected for {symbol} on {timeframe}")
     except Exception as e:
         logger.error(f"Market stream error for {symbol} on {timeframe}: {e}")
+
+
+@app.websocket("/api/v1/ws/signals-stream")
+async def signals_stream_endpoint(websocket: WebSocket):
+    """
+    Real-Time AI Signals WebSocket Stream
+
+    Continuously streams AI-powered trading signals for multiple assets.
+    Updates every second with analysis from 75+ technical indicators.
+
+    Example client code:
+        const ws = new WebSocket('ws://localhost:8000/api/v1/ws/signals-stream');
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            console.log('New signals:', data.signals);
+        };
+    """
+    await websocket_signals_stream(websocket)
 
 
 async def stream_market_updates():

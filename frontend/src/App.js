@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './styles/App.css';
-import Dashboard from './components/Dashboard';
+import './styles/animations.css';
+import NewDashboard from './components/NewDashboard';
 import ErrorBoundary from './components/ErrorBoundary';
 import wsService from './services/websocket';
 
@@ -23,7 +24,7 @@ function App() {
   return (
     <ErrorBoundary>
       <div className="app">
-        <Dashboard connected={connected} />
+        <NewDashboard connected={connected} />
       </div>
     </ErrorBoundary>
   );

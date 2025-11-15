@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time AI Signals Stream - Live Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            padding: 30px 0;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .status {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            margin: 10px 0;
+        }
+
+        .status.connected {
+            background: rgba(74, 222, 128, 0.3);
+            border: 2px solid #4ade80;
+        }
+
+        .status.disconnected {
+            background: rgba(239, 68, 68, 0.3);
+            border: 2px solid #ef4444;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+            font-size: 0.9em;
+        }
+
+        .signals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .signal-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .signal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .signal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .symbol {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .signal-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .signal-badge.STRONG_BUY {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .signal-badge.BUY {
+            background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+        }
+
+        .signal-badge.NEUTRAL {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+
+        .signal-badge.SELL {
+            background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+        }
+
+        .signal-badge.STRONG_SELL {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
+
+        .price-info {
+            font-size: 1.3em;
+            margin: 15px 0;
+        }
+
+        .confidence-bar {
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            height: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ade80 0%, #22c55e 100%);
+            transition: width 0.5s ease;
+        }
+
+        .scores {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .score-item {
+            text-align: center;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+
+        .score-value {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .score-label {
+            font-size: 0.8em;
+            opacity: 0.7;
+        }
+
+        .trade-plan {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .trade-plan-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.9em;
+        }
+
+        .pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .timestamp {
+            text-align: center;
+            opacity: 0.7;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Real-Time AI Signals Stream</h1>
+            <div id="status" class="status disconnected pulse">
+                ⚫ Connecting to WebSocket...
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-label">Signals Received</div>
+                <div class="stat-value" id="totalSignals">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Symbols</div>
+                <div class="stat-value" id="activeSymbols">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Updates Per Sec</div>
+                <div class="stat-value" id="updateRate">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Confidence</div>
+                <div class="stat-value" id="avgConfidence">0%</div>
+            </div>
+        </div>
+
+        <div id="timestamp" class="timestamp"></div>
+
+        <div id="signalsGrid" class="signals-grid"></div>
+    </div>
+
+    <script>
+        let ws;
+        let totalSignals = 0;
+        let lastUpdateTime = 0;
+        let updateCount = 0;
+
+        function connect() {
+            ws = new WebSocket('ws://localhost:8000/api/v1/ws/signals-stream');
+
+            ws.onopen = () => {
+                console.log('Connected to AI Signals Stream');
+                const statusEl = document.getElementById('status');
+                statusEl.textContent = '🟢 Connected & Streaming';
+                statusEl.className = 'status connected pulse';
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log('Received:', data);
+
+                if (data.type === 'signals_update') {
+                    updateSignals(data);
+                    updateStats(data);
+                }
+            };
+
+            ws.onclose = () => {
+                console.log('Disconnected from AI Signals Stream');
+                const statusEl = document.getElementById('status');
+                statusEl.textContent = '🔴 Disconnected';
+                statusEl.className = 'status disconnected';
+
+                // Reconnect after 3 seconds
+                setTimeout(connect, 3000);
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+        }
+
+        function updateSignals(data) {
+            const grid = document.getElementById('signalsGrid');
+            const signals = data.signals || [];
+
+            grid.innerHTML = '';
+
+            signals.forEach(signal => {
+                const card = createSignalCard(signal);
+                grid.appendChild(card);
+            });
+
+            document.getElementById('timestamp').textContent =
+                `Last Update: ${new Date(data.timestamp).toLocaleTimeString()}`;
+        }
+
+        function createSignalCard(signal) {
+            const card = document.createElement('div');
+            card.className = 'signal-card';
+
+            const confidencePct = (signal.confidence * 100).toFixed(0);
+            const technicalPct = (signal.technical_score * 100).toFixed(0);
+            const mlPct = (signal.ml_score * 100).toFixed(0);
+            const neuralPct = (signal.neural_score * 100).toFixed(0);
+
+            card.innerHTML = `
+                <div class="signal-header">
+                    <div class="symbol">${signal.symbol}</div>
+                    <div class="signal-badge ${signal.signal}">${signal.signal.replace('_', ' ')}</div>
+                </div>
+                <div class="price-info">
+                    $${signal.current_price ? signal.current_price.toFixed(2) : 'N/A'}
+                </div>
+                <div style="opacity: 0.8; margin-bottom: 10px;">
+                    Confidence: ${confidencePct}%
+                </div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" style="width: ${confidencePct}%"></div>
+                </div>
+                <div class="scores">
+                    <div class="score-item">
+                        <div class="score-value">${technicalPct}%</div>
+                        <div class="score-label">Technical</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value">${mlPct}%</div>
+                        <div class="score-label">ML</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value">${neuralPct}%</div>
+                        <div class="score-label">Neural</div>
+                    </div>
+                </div>
+                ${signal.entry_price ? `
+                <div class="trade-plan">
+                    <div class="trade-plan-item">
+                        <span>Entry:</span>
+                        <span>$${signal.entry_price.toFixed(2)}</span>
+                    </div>
+                    <div class="trade-plan-item">
+                        <span>Stop Loss:</span>
+                        <span>$${signal.stop_loss.toFixed(2)}</span>
+                    </div>
+                    <div class="trade-plan-item">
+                        <span>Take Profit:</span>
+                        <span>$${signal.take_profit.toFixed(2)}</span>
+                    </div>
+                    <div class="trade-plan-item">
+                        <span>R:R Ratio:</span>
+                        <span>${signal.risk_reward_ratio ? signal.risk_reward_ratio.toFixed(2) : 'N/A'}</span>
+                    </div>
+                </div>
+                ` : ''}
+            `;
+
+            return card;
+        }
+
+        function updateStats(data) {
+            totalSignals += data.count || 0;
+            document.getElementById('totalSignals').textContent = totalSignals;
+            document.getElementById('activeSymbols').textContent = data.count || 0;
+
+            // Calculate update rate
+            const now = Date.now();
+            if (lastUpdateTime) {
+                const elapsed = (now - lastUpdateTime) / 1000;
+                const rate = (1 / elapsed).toFixed(1);
+                document.getElementById('updateRate').textContent = rate;
+            }
+            lastUpdateTime = now;
+
+            // Calculate average confidence
+            if (data.signals && data.signals.length > 0) {
+                const avgConf = data.signals.reduce((sum, s) => sum + s.confidence, 0) / data.signals.length;
+                document.getElementById('avgConfidence').textContent = (avgConf * 100).toFixed(0) + '%';
+            }
+        }
+
+        // Connect on page load
+        connect();
+
+        // Send ping every 30 seconds to keep connection alive
+        setInterval(() => {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'ping' }));
+            }
+        }, 30000);
+    </script>
+</body>
+</html>
