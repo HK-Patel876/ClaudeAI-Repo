@@ -21,7 +21,6 @@ import OptionsAnalytics from './OptionsAnalytics';
 import aiSignalsService from '../services/aiSignals';
 import { tradingAPI, systemAPI } from '../services/api';
 import soundService from '../services/soundService';
-import './NewDashboard.css';
 import './EnhancedDashboard.css';
 
 const EnhancedDashboard = () => {
