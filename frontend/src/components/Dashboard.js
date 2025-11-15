@@ -15,6 +15,7 @@ import WatchlistPanel from './WatchlistPanel';
 import PerformanceAnalytics from './PerformanceAnalytics';
 import AgentLog from './AgentLog';
 import MainChart from './MainChart/MainChart';
+import BacktestingPanel from './BacktestingPanel';
 
 function Dashboard({ connected }) {
   const [portfolio, setPortfolio] = useState(null);
@@ -179,6 +180,11 @@ function Dashboard({ connected }) {
         {/* Portfolio Chart */}
         <div className="col-span-12">
           <PortfolioChart portfolio={portfolio} />
+        </div>
+
+        {/* Backtesting Panel */}
+        <div className="col-span-12">
+          <BacktestingPanel />
         </div>
 
         {/* Positions Grid */}

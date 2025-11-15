@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import soundService from '../services/soundService';
 
 function SettingsModal({ isOpen, onClose }) {
   const [activeTab, setActiveTab] = useState('data');
@@ -397,6 +398,87 @@ function SettingsModal({ isOpen, onClose }) {
                       />
                       Show News Ticker
                     </label>
+                  </div>
+
+                  <h4 style={{ marginTop: '30px', marginBottom: '15px' }}>🔊 Sound Notifications</h4>
+
+                  <div className="form-group">
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={soundService.isEnabled()}
+                        onChange={e => {
+                          if (e.target.checked) {
+                            soundService.enable();
+                            soundService.playConnected();
+                          } else {
+                            soundService.disable();
+                          }
+                          updateSetting('display', 'sound_enabled', e.target.checked);
+                        }}
+                      />
+                      Enable Sound Notifications
+                    </label>
+                    <p style={{ fontSize: '12px', color: '#888', marginTop: '5px' }}>
+                      Play sounds for trading signals and system events
+                    </p>
+                  </div>
+
+                  <div className="form-group">
+                    <label>
+                      Volume: {Math.round(soundService.getVolume() * 100)}%
+                    </label>
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={soundService.getVolume() * 100}
+                      onChange={e => {
+                        const volume = parseInt(e.target.value) / 100;
+                        soundService.setVolume(volume);
+                        updateSetting('display', 'sound_volume', volume);
+                      }}
+                      disabled={!soundService.isEnabled()}
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Test Sounds</label>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+                      <button
+                        className="btn btn-sm"
+                        onClick={() => soundService.playBuySignal()}
+                        disabled={!soundService.isEnabled()}
+                        style={{ padding: '5px 10px', fontSize: '12px' }}
+                      >
+                        🟢 Buy
+                      </button>
+                      <button
+                        className="btn btn-sm"
+                        onClick={() => soundService.playSellSignal()}
+                        disabled={!soundService.isEnabled()}
+                        style={{ padding: '5px 10px', fontSize: '12px' }}
+                      >
+                        🔴 Sell
+                      </button>
+                      <button
+                        className="btn btn-sm"
+                        onClick={() => soundService.playTradeExecuted()}
+                        disabled={!soundService.isEnabled()}
+                        style={{ padding: '5px 10px', fontSize: '12px' }}
+                      >
+                        ✅ Success
+                      </button>
+                      <button
+                        className="btn btn-sm"
+                        onClick={() => soundService.playAlert()}
+                        disabled={!soundService.isEnabled()}
+                        style={{ padding: '5px 10px', fontSize: '12px' }}
+                      >
+                        ⚠️ Alert
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}

@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 
 from .core.config import settings
 from .core.events import startup_event, shutdown_event
-from .api.endpoints import trading, data, system, settings as settings_api, watchlist, analyses, ai_signals
+from .api.endpoints import trading, data, system, settings as settings_api, watchlist, analyses, ai_signals, backtesting
 from .api.endpoints.signals_stream import websocket_signals_stream
 from .services.data_service import data_service
 from .services.ai_scheduler import ai_scheduler
@@ -50,6 +50,7 @@ app.include_router(settings_api.router, prefix=settings.API_PREFIX)
 app.include_router(watchlist.router, prefix=settings.API_PREFIX)
 app.include_router(analyses.router, prefix=settings.API_PREFIX)
 app.include_router(ai_signals.router, prefix=settings.API_PREFIX, tags=["AI Signals"])
+app.include_router(backtesting.router, prefix=settings.API_PREFIX, tags=["Backtesting"])
 
 # Startup and shutdown events
 @app.on_event("startup")

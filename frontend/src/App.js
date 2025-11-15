@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './styles/App.css';
+import './styles/animations.css';
 import NewDashboard from './components/NewDashboard';
 import ErrorBoundary from './components/ErrorBoundary';
 import wsService from './services/websocket';

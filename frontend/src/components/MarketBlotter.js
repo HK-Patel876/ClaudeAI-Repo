@@ -4,12 +4,12 @@ function MarketBlotter({ marketData, onStockClick }) {
   const symbols = Object.keys(marketData || {});
 
   return (
-    <div className="card">
+    <div className="card animate-fade-in-up card-hover">
       <div className="card-header">
         <h3 className="card-title">📊 Live Market Blotter</h3>
-        <span className="badge badge-success">Real-time</span>
+        <span className="badge badge-success animate-pulse">Real-time</span>
       </div>
-      
+
       {symbols.length > 0 ? (
         <table className="table">
           <thead>
@@ -22,26 +22,40 @@ function MarketBlotter({ marketData, onStockClick }) {
             </tr>
           </thead>
           <tbody>
-            {symbols.map(symbol => {
+            {symbols.map((symbol, index) => {
               const data = marketData[symbol];
               const change = data.change_pct || 0;
               const isPositive = change >= 0;
-              
+
               return (
-                <tr 
+                <tr
                   key={symbol}
                   onClick={() => onStockClick && onStockClick(symbol)}
-                  style={{ cursor: 'pointer' }}
+                  className="stagger-item hover-lift"
+                  style={{
+                    cursor: 'pointer',
+                    animationDelay: `${index * 0.05}s`,
+                    transition: 'all 0.3s ease'
+                  }}
                   title={`Click to view ${symbol} chart`}
                 >
                   <td style={{ fontWeight: 600 }}>{symbol}</td>
-                  <td>${data.price?.toFixed(2)}</td>
-                  <td style={{ color: isPositive ? '#4ade80' : '#f87171' }}>
+                  <td className="transition-all">${data.price?.toFixed(2)}</td>
+                  <td
+                    style={{
+                      color: isPositive ? '#4ade80' : '#f87171',
+                      fontWeight: 600
+                    }}
+                    className="transition-all"
+                  >
                     {isPositive ? '+' : ''}{change.toFixed(2)}%
                   </td>
-                  <td>{(data.volume / 1000000).toFixed(2)}M</td>
+                  <td className="transition-all">{(data.volume / 1000000).toFixed(2)}M</td>
                   <td>
-                    <span style={{ fontSize: '20px' }}>
+                    <span
+                      style={{ fontSize: '20px' }}
+                      className={isPositive ? 'animate-bounce' : ''}
+                    >
                       {isPositive ? '📈' : '📉'}
                     </span>
                   </td>
@@ -51,8 +65,8 @@ function MarketBlotter({ marketData, onStockClick }) {
           </tbody>
         </table>
       ) : (
-        <div className="empty-state">
-          <div className="empty-state-icon">📊</div>
+        <div className="empty-state animate-fade-in">
+          <div className="empty-state-icon animate-pulse">📊</div>
           <p>Waiting for market data...</p>
         </div>
       )}
