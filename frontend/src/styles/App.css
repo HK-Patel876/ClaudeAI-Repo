@@ -26,6 +26,9 @@
 .app {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--color-bg-primary) 0%, var(--color-bg-secondary) 100%);
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .dashboard {
