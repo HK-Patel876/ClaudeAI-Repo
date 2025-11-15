@@ -16,7 +16,7 @@ import {
   Settings
 } from 'lucide-react';
 import api from '../services/api';
-import soundService from '../services/sound';
+import soundService from '../services/soundService';
 
 const OptionsAnalytics = ({ defaultSymbol = 'AAPL' }) => {
   // State management
