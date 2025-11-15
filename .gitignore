@@ -29,3 +29,17 @@ Thumbs.db
 
 # Environment
 .env
+
+# Testing & Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
